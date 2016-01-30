@@ -5,8 +5,8 @@ pkg dstruct =
 		key : @k
 		val : @v
 		bal : int8
-		n0  : std.option(void#)
-		n1  : std.option(void#)
+		n0  : std.option(node(@k, @v)#)
+		n1  : std.option(node(@k, @v)#)
 	;;
 
 	type avl(@k, @v) = struct
@@ -18,10 +18,9 @@ pkg dstruct =
 	generic avlget : (avl : avl(@k, @v), k : @k -> std.option(@v))
 ;;
 
-generic n0 = {n : node(@k, @v)#; -> n.n0 castto(std.option(node(@k, @v)#)) }
-generic n1 = {n : node(@k, @v)#; -> n.n1 castto(std.option(node(@k, @v)#)) }
-
-generic mkavl = {cmp; -> [.cmp = cmp, .root = `std.None] }
+generic mkavl = {cmp
+	-> [.cmp = cmp, .root = `std.None]
+}
 
 generic avlget = {avl, k
 	var no
@@ -31,13 +30,12 @@ generic avlget = {avl, k
 		match no
 		| `std.Some n:
 			match avl.cmp(k, n.key)
-			| `std.Before: no = n0(n)
+			| `std.Before: no = n.n0
 			| `std.Equal : -> `std.Some n.val
-			| `std.After : no = n1(n)
+			| `std.After : no = n.n1
 			;;
 		| `std.None:
 			-> `std.None
 		;;
 	;;
 }
-
