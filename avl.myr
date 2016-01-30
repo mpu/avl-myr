@@ -39,3 +39,100 @@ generic avlget = {avl, k
 		;;
 	;;
 }
+
+generic insert = {k : @k, v : @v, no : std.option(node(@k, @v)#), cmp
+	var a : node(@k, @v)#
+	var b : node(@k, @v)#
+	var big
+
+	match no
+	| `std.None:
+		a = std.mk([
+			.key = k,
+			.val = v,
+			.bal = 0,
+			.n0 = `std.None,
+			.n1 = `std.None
+		])
+		-> (a, true)
+	| `std.Some n:
+		match cmp(k, n.key)
+		| `std.Equal:
+			/* leave the tree unchanged, should we update it? */
+			-> (n, false)
+		| `std.Before:
+			(a, big) = insert(k, v, n.n0, cmp)
+			n.n0 = `std.Some a
+			if !big
+				-> (n, false)
+			elif n.bal > -1
+				n.bal--
+				-> (n, n.bal != 0)
+			else
+				/* we need to do some balancing because
+				the left sub-tree is oversized */
+				if a.bal == -1
+					n.n0 = a.n1
+					a.n1 = `std.Some n
+					a.bal = 0
+					n.bal = 0
+					-> (a, false)
+				else
+					b = std.get(a.n1)
+					a.n1 = b.n0
+					n.n0 = b.n1
+					b.n0 = `std.Some a
+					b.n1 = `std.Some n
+					if b.bal < 0
+						a.bal = 0
+						n.bal = +1
+					elif b.bal > 0
+						a.bal = -1
+						n.bal = 0
+					else
+						a.bal = 0
+						n.bal = 0
+					;;
+					b.bal = 0
+					-> (b, false)
+				;;
+			;;
+		| `std.After:
+			/* symmetric of the above */
+			(a, big) = insert(k, v, n.n1, cmp)
+			n.n1 = `std.Some a
+			if !big
+				-> (n, false)
+			elif n.bal < +1
+				n.bal++
+				-> (n, n.bal != 0)
+			else
+				if a.bal == +1
+					n.n1 = a.n0
+					a.n0 = `std.Some n
+					a.bal = 0
+					n.bal = 0
+					-> (a, false)
+				else
+					b = std.get(a.n0)
+					a.n0 = b.n1
+					n.n1 = b.n0
+					b.n1 = `std.Some a
+					b.n0 = `std.Some n
+					if b.bal > 0
+						a.bal = 0
+						n.bal = -1
+					elif b.bal < 0
+						a.bal = +1
+						n.bal = 0
+					else
+						a.bal = 0
+						n.bal = 0
+					;;
+					b.bal = 0
+					-> (b, false)
+				;;
+			;;
+		;;
+	;;
+}
