@@ -59,7 +59,7 @@ generic insert = {k : @k, v : @v, no : std.option(node(@k, @v)#), cmp
 	| `std.Some n:
 		match cmp(k, n.key)
 		| `std.Equal:
-			/* leave the tree unchanged, should we update it? */
+			n.val = v
 			-> (n, false)
 		| `std.Before:
 			(a, big) = insert(k, v, n.n0, cmp)
