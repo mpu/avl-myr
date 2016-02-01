@@ -3,7 +3,9 @@ use bio
 use moreds
 
 type word = int
-const eof : word = -1
+
+const term : word = 0
+const eof  : word = -1
 
 var words  : std.htab(byte[:], word)#
 var nextid : word
@@ -37,7 +39,7 @@ const readw = {f
 		| `bio.Ok c:
 			if isterm(c)
 				std.sbfree(sb)
-				-> 0
+				-> term
 			;;
 			if isword(c)
 				std.sbputc(sb, c)
@@ -45,7 +47,7 @@ const readw = {f
 			;;
 		| _:
 			std.sbfree(sb)
-			-> -1
+			-> eof
 		;;
 	;;
 	while true
