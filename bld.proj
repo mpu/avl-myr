@@ -1,0 +1,8 @@
+bin markov {noinst} =
+	markov.myr
+	lib moreds
+;;
+
+lib moreds =
+	avl.myr
+;;

@@ -1,6 +1,6 @@
 use std
 
-pkg dstruct =
+pkg moreds =
 	type node(@k, @v) = struct
 		key : @k
 		val : @v

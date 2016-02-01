@@ -1,0 +1,6 @@
+use std
+use moreds
+
+const main = {
+	std.put("hi there\n");
+}

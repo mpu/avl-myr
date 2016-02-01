@@ -1,2 +1,5 @@
-*.o
+*.[oa]
 *.use
+
+moreds
+markov
