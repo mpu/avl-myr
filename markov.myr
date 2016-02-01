@@ -2,20 +2,22 @@ use std
 use bio
 use moreds
 
-type word = int
+const NChain = 2
+type word    = int
+/* type chain   = word[2] */ /* meh, this does not really work as I want */
 
 const term : word = 0
 
 var words  : std.htab(byte[:], word)#
 var nextid : word
-var wmap   : moreds.avl(word[:], word[:])#
+var wmap   : moreds.avl(word[2], word[:])#
+var wtos   : byte[:][:]
 
 /* compare two chain of words */
-const ccmp = {a, b
+const ccmp = {a : word[2], b : word[2]
 	var i
 
-	std.assert(a.len == b.len, "must be comparing chains of same length");
-	for i = 0; i < a.len; i++
+	for i = 0; i < NChain; i++
 		if a[i] < b[i]
 			-> `std.Before
 		elif a[i] > b[i]
@@ -23,6 +25,18 @@ const ccmp = {a, b
 		;;
 	;;
 	-> `std.Equal
+}
+
+const addw = {c : word[2], w : word
+
+	match moreds.avlget(wmap, c)
+	| `std.Some sl:
+		std.slpush(sl, w)
+	| `std.None:
+		var sl = std.slalloc(0)
+		std.slpush(sl, w)
+		moreds.avlins(wmap, c, sl)
+	;;
 }
 
 /* read a word from the standard input, None is returned when nothing can be read */
@@ -71,15 +85,64 @@ const readw = {f
 		-> `std.Some n
 	| `std.None:
 		std.htput(words, s, nextid)
-		std.slfree(s)
+		std.slpush(wtos, s[:])
 		-> `std.Some nextid++
 	;;
 }
 
 const main = {
+	var chain : word[2]
+	var stdin
+	var c
+	var next
+	var ws
+	const shift = {w : word
+		if w == term
+			std.slfill(chain[:NChain], term)
+		else
+			std.slcp(chain[:NChain-1], chain[1:NChain])
+			chain[NChain-1] = w
+		;;
+	}
+
 	words = std.mkht(std.slhash, std.sleq)
 	wmap = moreds.mkavl(ccmp)
 	nextid = 1
+	wtos = std.slalloc(0)
+	std.slpush(wtos, "TERM"[:])
 
-	std.put("hi there\n");
+	c = 1
+	stdin = bio.mkfile(0 castto(std.fd), bio.Rd)
+
+	/* step 1, learn */
+	shift(term)
+	while true
+		match readw(stdin)
+		| `std.Some w:
+			addw(chain, w)
+			shift(w)
+		| `std.None:
+			break
+		;;
+	;;
+
+	/* step 2, generate random stuff */
+	while c-- > 0
+		shift(term)
+		while true
+			match moreds.avlget(wmap, chain)
+			| `std.None:
+				ws = [term][:]
+			| `std.Some ws0:
+				ws = ws0
+			;;
+			next = ws[std.rand(0, ws.len)]
+			if next == term
+				std.put(".")
+				break
+			;;
+			std.put(" {}", wtos[next])
+			shift(next)
+		;;
+	;;
 }
