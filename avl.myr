@@ -15,7 +15,8 @@ pkg dstruct =
 	;;
 
 	generic mkavl : (cmp : (k1 : @k, k2 : @k -> std.order) -> avl(@k, @v))
-	generic avlget : (avl : avl(@k, @v), k : @k -> std.option(@v))
+	generic avlget : (avl : avl(@k, @v)#, k : @k -> std.option(@v))
+	generic avlins : (avl : avl(@k, @v)#, k : @k, v : @v -> void)
 ;;
 
 generic mkavl = {cmp
@@ -135,4 +136,11 @@ generic insert = {k : @k, v : @v, no : std.option(node(@k, @v)#), cmp
 			;;
 		;;
 	;;
+}
+
+generic avlins = {avl, k, v
+	var a
+
+	(a, _) = insert(k, v, avl.root, avl.cmp)
+	avl.root = `std.Some a
 }
