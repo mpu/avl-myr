@@ -1,6 +1,84 @@
 use std
+use bio
 use moreds
 
+type word = int
+const eof : word = -1
+
+var words : std.htab(byte[:], word)#
+var nextid : word
+var map : moreds.avl(word[:], word[:])
+
+/* compare two chain of words */
+const ccmp = {a, b
+	var i
+
+	std.assert(a.len == b.len, "must be comparing chains of same length");
+	for i = 0; i < a.len; i++
+		if a[i] < b[i]
+			-> `std.Before
+		elif a[i] > b[i]
+			-> `std.After
+		;;
+	;;
+	-> `std.Equal
+}
+
+/* read a word from the standard input, eof is returned when nothing can be read */
+const readw = {f
+	const isword = {c; -> std.isalnum(c) || c == '-' }
+	const isterm = {c; -> c == '.' || c == '?' || c == ':' }
+	var sb
+	var s
+
+	sb = std.mksb()
+	while true
+		match bio.getc(f)
+		| `bio.Ok c:
+			if isterm(c)
+				std.sbfree(sb)
+				-> 0
+			;;
+			if isword(c)
+				std.sbputc(sb, c)
+				break
+			;;
+		| _:
+			std.sbfree(sb)
+			-> -1
+		;;
+	;;
+	while true
+		match bio.peekc(f)
+		| `bio.Ok c:
+			if isword(c)
+				bio.getc(f)
+				std.sbputc(sb, c)
+			else
+				break
+			;;
+		| _: break
+		;;
+	;;
+
+	s = std.sbfin(sb)
+	std.sbfree(sb)
+
+	match std.htget(words, s)
+	| `std.Some n:
+		std.slfree(s)
+		-> n
+	| `std.None:
+		std.htput(words, s, nextid)
+		std.slfree(s)
+		-> nextid++
+	;;
+}
+
 const main = {
+	words = std.mkht(std.slhash, std.sleq)
+	map = moreds.mkavl(ccmp)
+	nextid = 1
+
 	std.put("hi there\n");
 }
