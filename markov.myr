@@ -91,17 +91,17 @@ const readw = {f
 }
 
 const main = {
-	var chain : word[2]
+	var ch : word[2]
 	var stdin
 	var c
 	var next
 	var ws
 	const shift = {w : word
 		if w == term
-			std.slfill(chain[:NChain], term)
+			std.slfill(ch[:NChain], term)
 		else
-			std.slcp(chain[:NChain-1], chain[1:NChain])
-			chain[NChain-1] = w
+			std.slcp(ch[:NChain-1], ch[1:NChain])
+			ch[NChain-1] = w
 		;;
 	}
 
@@ -119,7 +119,7 @@ const main = {
 	while true
 		match readw(stdin)
 		| `std.Some w:
-			addw(chain, w)
+			addw(ch, w)
 			shift(w)
 		| `std.None:
 			break
@@ -130,7 +130,7 @@ const main = {
 	while c-- > 0
 		shift(term)
 		while true
-			match moreds.avlget(wmap, chain)
+			match moreds.avlget(wmap, ch)
 			| `std.None:
 				ws = [term][:]
 			| `std.Some ws0:
