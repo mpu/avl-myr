@@ -92,10 +92,6 @@ const readw = {f
 
 const main = {
 	var ch : word[2]
-	var stdin
-	var c
-	var next
-	var ws
 	const shift = {w : word
 		if w == term
 			std.slfill(ch[:NChain], term)
@@ -104,6 +100,10 @@ const main = {
 			ch[NChain-1] = w
 		;;
 	}
+	var stdin
+	var c
+	var next
+	var ws
 
 	words = std.mkht(std.slhash, std.sleq)
 	wmap = moreds.mkavl(ccmp)
