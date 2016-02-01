@@ -77,8 +77,6 @@ const readw = {f
 	;;
 
 	s = std.sbfin(sb)
-	std.sbfree(sb)
-
 	match std.htget(words, s)
 	| `std.Some n:
 		std.slfree(s)
