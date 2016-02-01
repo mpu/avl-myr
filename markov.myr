@@ -127,6 +127,7 @@ const main = {
 	/* step 2, generate random stuff */
 	while c-- > 0
 		shift(term)
+		std.put(">>>")
 		while true
 			match moreds.avlget(wmap, ch)
 			| `std.None:
@@ -142,5 +143,6 @@ const main = {
 			std.put(" {}", wtos[next])
 			shift(next)
 		;;
+		std.put("\n")
 	;;
 }
