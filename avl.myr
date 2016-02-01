@@ -14,13 +14,13 @@ pkg moreds =
 		root : std.option(node(@k, @v)#)
 	;;
 
-	generic mkavl : (cmp : (k1 : @k, k2 : @k -> std.order) -> avl(@k, @v))
+	generic mkavl : (cmp : (k1 : @k, k2 : @k -> std.order) -> avl(@k, @v)#)
 	generic avlget : (avl : avl(@k, @v)#, k : @k -> std.option(@v))
 	generic avlins : (avl : avl(@k, @v)#, k : @k, v : @v -> void)
 ;;
 
 generic mkavl = {cmp
-	-> [.cmp = cmp, .root = `std.None]
+	-> std.mk([.cmp = cmp, .root = `std.None])
 }
 
 generic avlget = {avl, k

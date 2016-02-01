@@ -5,9 +5,9 @@ use moreds
 type word = int
 const eof : word = -1
 
-var words : std.htab(byte[:], word)#
+var words  : std.htab(byte[:], word)#
 var nextid : word
-var map : moreds.avl(word[:], word[:])
+var wmap   : moreds.avl(word[:], word[:])#
 
 /* compare two chain of words */
 const ccmp = {a, b
@@ -77,7 +77,7 @@ const readw = {f
 
 const main = {
 	words = std.mkht(std.slhash, std.sleq)
-	map = moreds.mkavl(ccmp)
+	wmap = moreds.mkavl(ccmp)
 	nextid = 1
 
 	std.put("hi there\n");
