@@ -4,17 +4,17 @@ use moreds
 
 const NChain = 2
 type word    = int
-/* type chain   = word[2] */ /* meh, this does not really work as I want */
+type chain   = word[2]
 
 const term : word = 0
 
 var words  : std.htab(byte[:], word)#
 var nextid : word
-var wmap   : moreds.avl(word[2], word[:])#
+var wmap   : moreds.avl(chain, word[:])#
 var wtos   : byte[:][:]
 
 /* compare two chain of words */
-const ccmp = {a : word[2], b : word[2]
+const ccmp = {a : chain, b : chain
 	var i
 
 	for i = 0; i < NChain; i++
@@ -27,7 +27,7 @@ const ccmp = {a : word[2], b : word[2]
 	-> `std.Equal
 }
 
-const addw = {c : word[2], w : word
+const addw = {c : chain, w : word
 
 	match moreds.avlget(wmap, c)
 	| `std.Some sl:
@@ -89,7 +89,7 @@ const readw = {f
 }
 
 const main = {
-	var ch : word[2]
+	var ch : chain
 	const shift = {w : word
 		if w == term
 			std.slfill(ch[:NChain], term)
@@ -107,7 +107,7 @@ const main = {
 	wmap = moreds.mkavl(ccmp)
 	nextid = 1
 	wtos = std.slalloc(0)
-	std.slpush(wtos, "TERM"[:])
+	std.slpush(wtos, "TERM")
 
 	c = 1
 	stdin = bio.mkfile(0 castto(std.fd), bio.Rd)
