@@ -38,7 +38,7 @@ const readw = {f
 				-> `std.Some term
 			;;
 			if isword(c)
-				std.sbputc(sb, c)
+				std.sbputc(sb, std.tolower(c))
 				break
 			;;
 		| _:
@@ -49,9 +49,9 @@ const readw = {f
 	while true
 		match bio.peekc(f)
 		| `bio.Ok c:
-			if isword(c)
+			if isword(c) || c == '\''
 				bio.getc(f)
-				std.sbputc(sb, c)
+				std.sbputc(sb, std.tolower(c))
 			else
 				break
 			;;
@@ -65,20 +65,23 @@ const readw = {f
 		std.slfree(s)
 		-> `std.Some n
 	| `std.None:
+		/* std.put("{} ", s) */
 		std.htput(words, s, nextid)
-		std.slpush(wtos, s[:])
+		wtos = std.slpush(wtos, s)
 		-> `std.Some nextid++
 	;;
 }
 
 const main = {
-	var ch : chain
+	var ch  : chain
+
+	var pch = &ch /* hack to capture ch "by reference"... */
 	const shift = {w : word
 		if w == term
-			std.slfill(ch[:NChain], term)
+			std.slfill(pch#[:NChain], term)
 		else
-			std.slcp(ch[:NChain-1], ch[1:NChain])
-			ch[NChain-1] = w
+			std.slcp(pch#[:NChain-1], pch#[1:NChain])
+			pch#[NChain-1] = w
 		;;
 	}
 
@@ -86,7 +89,7 @@ const main = {
 	var wmap = moreds.mkavl(ccmp)
 	nextid = 1
 	wtos = std.slalloc(0)
-	std.slpush(wtos, "TERM")
+	wtos = std.slpush(wtos, "TERM")
 
 	var c = 1
 	var stdin = bio.mkfile(0 castto(std.fd), bio.Rd)
@@ -110,6 +113,7 @@ const main = {
 		;;
 	;;
 
+	std.put("Markov says:\n")
 	/* step 2, generate random stuff */
 	for ; c > 0; c--
 		shift(term)
@@ -123,12 +127,11 @@ const main = {
 				next = term
 			;;
 			if next == term
-				std.put(".")
+				std.put(".\n")
 				break
 			;;
 			std.put(" {}", wtos[next])
 			shift(next)
 		;;
-		std.put("\n")
 	;;
 }
