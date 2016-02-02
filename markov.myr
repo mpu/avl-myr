@@ -15,9 +15,8 @@ var wtos   : byte[:][:]
 
 /* compare two chain of words */
 const ccmp = {a : chain, b : chain
-	var i
 
-	for i = 0; i < NChain; i++
+	for var i = 0; i < NChain; i++
 		if a[i] < b[i]
 			-> `std.Before
 		elif a[i] > b[i]
@@ -43,10 +42,8 @@ const addw = {c : chain, w : word
 const readw = {f
 	const isword = {c; -> std.isalnum(c) || c == '-' }
 	const isterm = {c; -> c == '.' || c == '?' || c == ':' }
-	var sb
-	var s
 
-	sb = std.mksb()
+	var sb = std.mksb()
 	while true
 		match bio.getc(f)
 		| `bio.Ok c:
@@ -76,7 +73,7 @@ const readw = {f
 		;;
 	;;
 
-	s = std.sbfin(sb)
+	var s = std.sbfin(sb)
 	match std.htget(words, s)
 	| `std.Some n:
 		std.slfree(s)
@@ -89,6 +86,7 @@ const readw = {f
 }
 
 const main = {
+
 	var ch : chain
 	const shift = {w : word
 		if w == term
@@ -98,10 +96,6 @@ const main = {
 			ch[NChain-1] = w
 		;;
 	}
-	var stdin
-	var c
-	var next
-	var ws
 
 	words = std.mkht(std.slhash, std.sleq)
 	wmap = moreds.mkavl(ccmp)
@@ -109,8 +103,8 @@ const main = {
 	wtos = std.slalloc(0)
 	std.slpush(wtos, "TERM")
 
-	c = 1
-	stdin = bio.mkfile(0 castto(std.fd), bio.Rd)
+	var c = 1
+	var stdin = bio.mkfile(0 castto(std.fd), bio.Rd)
 
 	/* step 1, learn */
 	shift(term)
@@ -129,13 +123,13 @@ const main = {
 		shift(term)
 		std.put(">>>")
 		while true
+			var next
 			match moreds.avlget(wmap, ch)
 			| `std.None:
-				ws = [term][:]
-			| `std.Some ws0:
-				ws = ws0
+				next = term
+			| `std.Some ws:
+				next = ws[std.rand(0, ws.len)]
 			;;
-			next = ws[std.rand(0, ws.len)]
 			if next == term
 				std.put(".")
 				break
