@@ -91,7 +91,7 @@ const main = {
 	wtos = std.slalloc(0)
 	wtos = std.slpush(wtos, "TERM")
 
-	var c = 1
+	var c = 10
 	var stdin = bio.mkfile(0 castto(std.fd), bio.Rd)
 
 	/* step 1, learn */
@@ -113,7 +113,6 @@ const main = {
 		;;
 	;;
 
-	std.put("Markov says:\n")
 	/* step 2, generate random stuff */
 	for ; c > 0; c--
 		shift(term)
