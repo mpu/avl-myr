@@ -10,12 +10,10 @@ const term : word = 0
 
 var words  : std.htab(byte[:], word)#
 var nextid : word
-var wmap   : moreds.avl(chain, word[:])#
 var wtos   : byte[:][:]
 
 /* compare two chain of words */
 const ccmp = {a : chain, b : chain
-
 	for var i = 0; i < NChain; i++
 		if a[i] < b[i]
 			-> `std.Before
@@ -24,18 +22,6 @@ const ccmp = {a : chain, b : chain
 		;;
 	;;
 	-> `std.Equal
-}
-
-const addw = {c : chain, w : word
-
-	match moreds.avlget(wmap, c)
-	| `std.Some sl:
-		std.slpush(sl, w)
-	| `std.None:
-		var sl = std.slalloc(0)
-		std.slpush(sl, w)
-		moreds.avlins(wmap, c, sl)
-	;;
 }
 
 /* read a word from the standard input, None is returned when nothing can be read */
@@ -86,7 +72,6 @@ const readw = {f
 }
 
 const main = {
-
 	var ch : chain
 	const shift = {w : word
 		if w == term
@@ -98,7 +83,7 @@ const main = {
 	}
 
 	words = std.mkht(std.slhash, std.sleq)
-	wmap = moreds.mkavl(ccmp)
+	var wmap = moreds.mkavl(ccmp)
 	nextid = 1
 	wtos = std.slalloc(0)
 	std.slpush(wtos, "TERM")
@@ -111,7 +96,14 @@ const main = {
 	while true
 		match readw(stdin)
 		| `std.Some w:
-			addw(ch, w)
+			var sl
+			match moreds.avlget(wmap, ch)
+			| `std.Some sl0:
+				sl = sl0
+			| `std.None:
+				sl = std.slalloc(0)
+			;;
+			moreds.avlins(wmap, ch, std.slpush(sl, w))
 			shift(w)
 		| `std.None:
 			break
@@ -119,16 +111,16 @@ const main = {
 	;;
 
 	/* step 2, generate random stuff */
-	while c-- > 0
+	for ; c > 0; c--
 		shift(term)
 		std.put(">>>")
 		while true
 			var next
 			match moreds.avlget(wmap, ch)
-			| `std.None:
-				next = term
 			| `std.Some ws:
 				next = ws[std.rand(0, ws.len)]
+			| `std.None:
+				next = term
 			;;
 			if next == term
 				std.put(".")

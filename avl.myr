@@ -39,6 +39,7 @@ generic avlget = {avl, k
 			-> `std.None
 		;;
 	;;
+	-> `std.None
 }
 
 generic insert = {k : @k, v : @v, no : std.option(node(@k, @v)#), cmp
