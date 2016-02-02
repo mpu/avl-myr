@@ -1,0 +1,10 @@
+This was a long test of the Myrddin programming language.
+
+To build and play:
+
+    $ mbld
+    $ ./markov < alice.txt
+      [...]
+
+The AVL library might be useful in the standard library
+once deletion is implemented.
