@@ -43,9 +43,7 @@ generic avlget = {avl, k
 }
 
 generic insert = {k : @k, v : @v, no : std.option(node(@k, @v)#), cmp
-	var a : node(@k, @v)#
-	var b : node(@k, @v)#
-	var big
+	var a, b, big
 
 	match no
 	| `std.None:
