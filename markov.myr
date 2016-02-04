@@ -67,7 +67,7 @@ const readw = {f
 	| `std.None:
 		/* std.put("{} ", s) */
 		std.htput(words, s, nextid)
-		wtos = std.slpush(wtos, s)
+		std.slpush(&wtos, s)
 		-> `std.Some nextid++
 	;;
 }
@@ -89,7 +89,7 @@ const main = {
 	var wmap = moreds.mkavl(ccmp)
 	nextid = 1
 	wtos = std.slalloc(0)
-	wtos = std.slpush(wtos, "TERM")
+	std.slpush(&wtos, "TERM")
 
 	var c = 10
 	var stdin = bio.mkfile(0 castto(std.fd), bio.Rd)
@@ -106,7 +106,7 @@ const main = {
 			| `std.None:
 				sl = std.slalloc(0)
 			;;
-			moreds.avlins(wmap, ch, std.slpush(sl, w))
+			moreds.avlins(wmap, ch, std.slpush(&sl, w))
 			shift(w)
 		| `std.None:
 			break
